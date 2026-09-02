@@ -1,4 +1,4 @@
-#First Project
+# First Project
 
-##Description
+## Description
 This repository will be for my first project.
