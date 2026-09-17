@@ -70,7 +70,15 @@ public class BankRepl {
 	}
 	
 	private void register() {
+		System.out.println("Pin: ");
+		String pin = in.nextLine().trim();
 		
+		try {
+			user = service.register(pin);
+			System.out.println("Account created successfully.");
+		} catch(IllegalArgumentException e) {
+			System.out.println("Error: " + e.getMessage());
+		}
 	}
 	
 	private int readInt(String prompt) {

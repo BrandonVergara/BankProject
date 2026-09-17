@@ -1,6 +1,5 @@
 package service;
 
-import java.util.List;
 import domain.Account;
 
 public interface AccountService {
@@ -8,8 +7,6 @@ public interface AccountService {
 	void addAccount(Account account);
 	
 	Account findAccount(int id);
-	
-	List<Account> findAllAccounts();
 	
 	Account login (int id, String pin);
 	
