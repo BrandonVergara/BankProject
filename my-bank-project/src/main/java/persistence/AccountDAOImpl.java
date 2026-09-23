@@ -1,33 +1,117 @@
 package persistence;
 
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import domain.Account;
 
 public class AccountDAOImpl implements AccountDAO {
 
-	@Override
-	public void addAccount(Account account) {
-		// TODO Auto-generated method stub
+    private static final String CREATE_TABLE_SQL = """
+            CREATE TABLE IF NOT EXISTS accounts (
+                id BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 1000 INCREMENT BY 1),
+                pin VARCHAR(4) NOT NULL,
+                balance NUMERIC(12,2) NOT NULL DEFAULT 0,
+                PRIMARY KEY (id)
+            )
+            """;
+    private static final String INSERT_SQL = "INSERT INTO accounts (pin, balance) VALUES (?, ?) RETURNING id";
+    private static final String FIND_BY_ID_SQL = "SELECT id, pin, balance FROM accounts WHERE id = ?";
+    private static final String UPDATE_PIN_SQL = "UPDATE accounts SET pin = ? WHERE id = ?";
+    private static final String UPDATE_BALANCE_SQL = "UPDATE accounts SET balance = ? WHERE id = ?";
+    private static final String DELETE_SQL = "DELETE FROM accounts WHERE id = ?";
 
-	}
+    public AccountDAOImpl() {
+        initializeSchema();
+    }
 
-	@Override
-	public Account getAccountByID(int id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Account addAccount(Account account) {
+        try (Connection connection = ConnectionFactory.getConnectionFactory().getConnection();
+                PreparedStatement statement = connection.prepareStatement(INSERT_SQL)) {
+            statement.setString(1, account.getPin());
+            statement.setBigDecimal(2, account.getBalance());
 
-	@Override
-	public void updateAccount(Account account) {
-		// TODO Auto-generated method stub
+            try (ResultSet resultSet = statement.executeQuery()) {
+                resultSet.next();
+                long generatedId = resultSet.getLong("id");
+                return new Account(generatedId, account.getPin(), account.getBalance());
+            }
+        } catch (SQLException e) {
+            throw databaseError("Could not add account", e);
+        }
+    }
 
-	}
+    @Override
+    public Account getAccountById(long id) {
+        try (Connection connection = ConnectionFactory.getConnectionFactory().getConnection();
+                PreparedStatement statement = connection.prepareStatement(FIND_BY_ID_SQL)) {
+            statement.setLong(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapAccount(resultSet);
+                }
+            }
+            return null;
+        } catch (SQLException e) {
+            throw databaseError("Could not find account", e);
+        }
+    }
 
-	@Override
-	public void deleteAccount(int id) {
-		// TODO Auto-generated method stub
+    @Override
+    public void updatePin(Account account) {
+        try (Connection connection = ConnectionFactory.getConnectionFactory().getConnection();
+                PreparedStatement statement = connection.prepareStatement(UPDATE_PIN_SQL)) {
+            statement.setString(1, account.getPin());
+            statement.setLong(2, account.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw databaseError("Could not update pin", e);
+        }
+    }
 
-	}
+    @Override
+    public void updateBalance(Account account) {
+        try (Connection connection = ConnectionFactory.getConnectionFactory().getConnection();
+                PreparedStatement statement = connection.prepareStatement(UPDATE_BALANCE_SQL)) {
+            statement.setBigDecimal(1, account.getBalance());
+            statement.setLong(2, account.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw databaseError("Could not update balance", e);
+        }
+    }
 
+    @Override
+    public void deleteAccount(long id) {
+        try (Connection connection = ConnectionFactory.getConnectionFactory().getConnection();
+                PreparedStatement statement = connection.prepareStatement(DELETE_SQL)) {
+            statement.setLong(1, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw databaseError("Could not delete account", e);
+        }
+    }
+
+    private void initializeSchema() {
+        try (Connection connection = ConnectionFactory.getConnectionFactory().getConnection();
+                PreparedStatement statement = connection.prepareStatement(CREATE_TABLE_SQL)) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw databaseError("Could not initialize database schema", e);
+        }
+    }
+
+    private Account mapAccount(ResultSet resultSet) throws SQLException {
+        return new Account(
+                resultSet.getLong("id"),
+                resultSet.getString("pin"),
+                resultSet.getBigDecimal("balance"));
+    }
+
+    private IllegalStateException databaseError(String message, SQLException cause) {
+        return new IllegalStateException(message, cause);
+    }
 }

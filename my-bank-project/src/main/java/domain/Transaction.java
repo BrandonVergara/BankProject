@@ -1,18 +1,19 @@
 package domain;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 public class Transaction {
 	
 	private int id;
-	private String type;
-	private double amount;
+	private TransactionType type;
+	private BigDecimal amount;
 	private LocalDateTime timeStamp;
 	private int sourceId;
 	private int destinationId;
 	private String description;
 	
-	public Transaction(int id, String type, double amount, LocalDateTime timeStamp,
+	public Transaction(int id, TransactionType type, BigDecimal amount, LocalDateTime timeStamp,
 			int sourceId, int destinationID, String description) {
 		this.id = id;
 		this.type = type;
@@ -27,11 +28,11 @@ public class Transaction {
 		return id;
 	}
 	
-	public String getType() {
+	public TransactionType getType() {
 		return type;
 	}
 	
-	public double getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
 	

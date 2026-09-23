@@ -1,16 +1,16 @@
 package persistence;
 
-import java.util.List;
 import domain.Account;
 
 public interface AccountDAO {
-	
-	void addAccount(Account account);
-	
-	Account getAccountByID(int id);
-	
-	void updateAccount(Account account);
-	
-	void deleteAccount(int id);
 
+    Account addAccount(Account account);
+
+    Account getAccountById(long id);
+
+    void updatePin(Account account);
+
+    void updateBalance(Account account);
+
+    void deleteAccount(long id);
 }

@@ -56,7 +56,7 @@ public class BankRepl {
 	}
 	
 	private void login() {
-		int id = readInt("Account ID: ");
+		long id = readLong("Account ID: ");
 		System.out.println("Pin ");
 		String pin = in.nextLine().trim();
 		
@@ -81,9 +81,9 @@ public class BankRepl {
 		}
 	}
 	
-	private int readInt(String prompt) {
+	private long readLong(String prompt) {
 		System.out.print(prompt);
-		return Integer.parseInt(in.nextLine().trim());
+		return Long.parseLong(in.nextLine().trim());
 	}
 	
 	private void logHandle(String command) {

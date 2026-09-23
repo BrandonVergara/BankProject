@@ -1,31 +1,38 @@
 package service;
 
 import domain.Account;
+import java.math.BigDecimal;
+
+import persistence.AccountDAO;
 
 public class AccountServiceImpl implements AccountService {
-
+	private final AccountDAO accountDAO;
+	
+	public AccountServiceImpl(AccountDAO accountDAO) {
+		this.accountDAO=accountDAO;
+	}
+	
 	@Override
-	public void addAccount(Account account) {
-		// TODO Auto-generated method stub
-
+	public Account register(String pin) {
+		if(!validatePin(pin)) {
+			throw new IllegalArgumentException("Pin must be exactly 4 digits");
+		}
+		Account newAccount = new Account(pin);
+		return accountDAO.addAccount(newAccount);
 	}
 
 	@Override
 	public Account findAccount(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		return accountDAO.getAccountById(id);
 	}
 
 	@Override
-	public Account login(int id, String pin) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Account register(String pin) {
-		// TODO Auto-generated method stub
-		return null;
+	public Account login(long id, String pin) {
+		Account account = accountDAO.getAccountById(id);
+		if (account == null || !account.getPin().equals(pin)) {
+			throw new IllegalArgumentException("Invalid account ID or PIN");
+		}
+		return account;
 	}
 
 	@Override
@@ -36,26 +43,30 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public void deleteAccount(int id) {
-		// TODO Auto-generated method stub
-
+		if(accountDAO.getAccountById(id) == null) {
+			throw new IllegalArgumentException("Account not found");
+		}
+		else if(accountDAO.getAccountById(id).getBalance().compareTo(BigDecimal.ZERO) > 0) {
+			System.out.println("Account balance must be zero.");
+		}else {
+			accountDAO.deleteAccount(id);
+		}
 	}
 
-	@Override
-	public void makeTransaction(int source, int destination, double balance) {
-		// TODO Auto-generated method stub
-
+	
+	private boolean validatePin(String pin) {
+	    if (pin == null || pin.length() != 4) {
+	        return false;
+	    }
+	    
+	    for (int i = 0; i < pin.length(); i++) {
+	        if (!Character.isDigit(pin.charAt(i))) {
+	            return false;
+	        }
+	    }
+	    
+	    return true;
 	}
 
-	@Override
-	public void makeDeposity(int id, double amount) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void makeWithdraw(int id, double amount) {
-		// TODO Auto-generated method stub
-
-	}
 
 }
