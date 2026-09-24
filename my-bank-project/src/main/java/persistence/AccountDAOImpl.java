@@ -7,6 +7,9 @@ import java.sql.SQLException;
 
 import domain.Account;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class AccountDAOImpl implements AccountDAO {
 
     private static final String CREATE_TABLE_SQL = """
@@ -19,13 +22,14 @@ public class AccountDAOImpl implements AccountDAO {
             """;
     private static final String INSERT_SQL = "INSERT INTO accounts (pin, balance) VALUES (?, ?) RETURNING id";
     private static final String FIND_BY_ID_SQL = "SELECT id, pin, balance FROM accounts WHERE id = ?";
-    private static final String UPDATE_PIN_SQL = "UPDATE accounts SET pin = ? WHERE id = ?";
     private static final String UPDATE_BALANCE_SQL = "UPDATE accounts SET balance = ? WHERE id = ?";
     private static final String DELETE_SQL = "DELETE FROM accounts WHERE id = ?";
     private final Connection conn;
+    private static Logger logger;
 
     public AccountDAOImpl(Connection conn) {
         this.conn = conn;
+        logger = LoggerFactory.getLogger(AccountDAOImpl.class);
         initializeSchema();
     }
 
@@ -38,9 +42,11 @@ public class AccountDAOImpl implements AccountDAO {
             try (ResultSet resultSet = statement.executeQuery()) {
                 resultSet.next();
                 long generatedId = resultSet.getLong("id");
+                logger.info("New account {} created", generatedId);
                 return new Account(generatedId, account.getPin(), account.getBalance());
             }
         } catch (SQLException e) {
+        	logger.error("Could not create new account", e);
             throw databaseError("Could not add account", e);
         }
     }
@@ -61,23 +67,14 @@ public class AccountDAOImpl implements AccountDAO {
     }
 
     @Override
-    public void updatePin(Account account) {
-        try (PreparedStatement statement = conn.prepareStatement(UPDATE_PIN_SQL)) {
-            statement.setString(1, account.getPin());
-            statement.setLong(2, account.getId());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            throw databaseError("Could not update pin", e);
-        }
-    }
-
-    @Override
     public void updateBalance(Account account) {
         try (PreparedStatement statement = conn.prepareStatement(UPDATE_BALANCE_SQL)) {
             statement.setBigDecimal(1, account.getBalance());
             statement.setLong(2, account.getId());
             statement.executeUpdate();
+            logger.info("Account {} balance updated", account.getId());
         } catch (SQLException e) {
+        	logger.error("Could not update balance for account {}", account.getId(), e);
             throw databaseError("Could not update balance", e);
         }
     }
@@ -87,7 +84,9 @@ public class AccountDAOImpl implements AccountDAO {
         try (PreparedStatement statement = conn.prepareStatement(DELETE_SQL)) {
             statement.setLong(1, id);
             statement.executeUpdate();
+            logger.info("Account {} successfully deleted", id);
         } catch (SQLException e) {
+        	logger.error("Could not delete account {}", id, e);
             throw databaseError("Could not delete account", e);
         }
     }
@@ -95,7 +94,9 @@ public class AccountDAOImpl implements AccountDAO {
     private void initializeSchema() {
         try (PreparedStatement statement = conn.prepareStatement(CREATE_TABLE_SQL)) {
             statement.executeUpdate();
+            logger.info("Database schema initialized");
         } catch (SQLException e) {
+        	logger.error("Could not initialize database schema");
             throw databaseError("Could not initialize database schema", e);
         }
     }

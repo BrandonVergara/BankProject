@@ -10,6 +10,9 @@ import java.sql.SQLException;
 import domain.Transaction;
 import domain.TransactionType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class TransactionDAOImpl implements TransactionDAO {
 	
 	private static final String CREATE_TABLE_SQL = """
@@ -32,9 +35,11 @@ public class TransactionDAOImpl implements TransactionDAO {
 	private static final String FIND_ALL_SQL = "SELECT id, transaction_type, amount, timestamp, source_id, destination_id, description " + 
 			"FROM transactions WHERE source_id = ? OR destination_id = ? ORDER BY timestamp DESC LIMIT ?";
 	private final Connection conn;
+	private static Logger logger;
 	
 	public TransactionDAOImpl(Connection conn) {
 		this.conn = conn;
+		logger = LoggerFactory.getLogger(TransactionDAOImpl.class);
 		initializeSchema();
 	}
 	@Override
@@ -50,10 +55,12 @@ public class TransactionDAOImpl implements TransactionDAO {
 			try(ResultSet resultSet = statement.executeQuery()){
 				resultSet.next();
 				long generatedId = resultSet.getLong("id");
+				logger.info("New {} transaction {} recorded", transaction.getType(), generatedId);
 				return new Transaction(generatedId, transaction.getType(),transaction.getAmount(),transaction.getTimeStamp(),
 						 transaction.getSourceId(), transaction.getDestinationId(), transaction.getDescription());
 			}
 		} catch(SQLException e) {
+			logger.error("New transaction for account {} not created", transaction.getSourceId(), e);
 			throw databaseError("Could not add transaction", e);
 		}
 	}
@@ -70,9 +77,11 @@ public class TransactionDAOImpl implements TransactionDAO {
 				while(resultSet.next()) {
 					transactions.add(mapTransaction(resultSet));
 				}
+				logger.info("Transaction history for account {} accessed", id);
 				return transactions;
 			}
 		} catch(SQLException e) {
+			logger.error("Could not get transaction history for account {}", id, e);
 			throw databaseError("Could not get history" , e);
 		}
 	}
@@ -80,7 +89,9 @@ public class TransactionDAOImpl implements TransactionDAO {
 	private void initializeSchema() {
 		try(PreparedStatement statement = conn.prepareStatement(CREATE_TABLE_SQL)){
 			statement.executeUpdate();
+			logger.info("Database schema initialied");
 		} catch(SQLException e) {
+			logger.error("Could not initialize database schema");
 			throw databaseError("Could not initialize database schema", e);
 		}
 	}

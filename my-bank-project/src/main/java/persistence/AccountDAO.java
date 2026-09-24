@@ -8,8 +8,6 @@ public interface AccountDAO {
 
     Account getAccountById(long id);
 
-    void updatePin(Account account);
-
     void updateBalance(Account account);
 
     void deleteAccount(long id);
