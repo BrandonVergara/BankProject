@@ -30,6 +30,7 @@ public class BankRepl {
 			String command = in.nextLine().trim();
 		
 			if(command.equals("exit")) {
+				System.out.println("Thank You. Have a good day!");
 				return;
 			}
 		
@@ -44,8 +45,7 @@ public class BankRepl {
 	private void handle(String command) {
 		if(user == null) {
 			logInHandle(command);
-		}
-		if(user != null) {
+		} else {
 			logHandle(command);
 		}
 	}
@@ -80,7 +80,9 @@ public class BankRepl {
 		
 		try {
 			user = accService.register(pin);
-			System.out.println("Account created successfully.");
+			System.out.println("Account created successfully. Your ID is: " + user.getId());
+			System.out.println();
+			printHelp();
 		} catch(IllegalArgumentException e) {
 			System.out.println("Error: " + e.getMessage());
 		}
@@ -108,6 +110,7 @@ public class BankRepl {
 		System.out.println("deposit - Deposit money into account");
 		System.out.println("withdraw - Withdraw money from account");
 		System.out.println("transfer - Transfer money into another account");
+		System.out.print("> ");
 		String command = in.nextLine().trim();
 		long id = user.getId();
 		switch(command){

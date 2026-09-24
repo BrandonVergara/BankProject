@@ -138,7 +138,7 @@ public class TransactionServiceImpl implements TransactionService {
 	
 	private void validateFunds(Account account, BigDecimal amount) {
 		if(account.getBalance().compareTo(amount) < 0) {
-			logger.error("Withdraw failed for account {}: insufficient funds", account);
+			logger.error("Withdraw failed for account {}: insufficient funds", account.getId());
 			throw new IllegalArgumentException("Account has insufficient funds");
 		}
 	}

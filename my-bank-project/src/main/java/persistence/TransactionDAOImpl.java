@@ -60,7 +60,7 @@ public class TransactionDAOImpl implements TransactionDAO {
 						 transaction.getSourceId(), transaction.getDestinationId(), transaction.getDescription());
 			}
 		} catch(SQLException e) {
-			logger.error("New transaction for account {} not created", transaction.getSourceId(), e);
+			logger.error("New {} transaction not created", transaction.getType(), e);
 			throw databaseError("Could not add transaction", e);
 		}
 	}
@@ -89,9 +89,9 @@ public class TransactionDAOImpl implements TransactionDAO {
 	private void initializeSchema() {
 		try(PreparedStatement statement = conn.prepareStatement(CREATE_TABLE_SQL)){
 			statement.executeUpdate();
-			logger.info("Database schema initialied");
+			logger.info("Database schema initialized");
 		} catch(SQLException e) {
-			logger.error("Could not initialize database schema");
+			logger.error("Could not initialize database schema", e);
 			throw databaseError("Could not initialize database schema", e);
 		}
 	}

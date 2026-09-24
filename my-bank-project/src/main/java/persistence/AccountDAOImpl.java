@@ -96,7 +96,7 @@ public class AccountDAOImpl implements AccountDAO {
             statement.executeUpdate();
             logger.info("Database schema initialized");
         } catch (SQLException e) {
-        	logger.error("Could not initialize database schema");
+        	logger.error("Could not initialize database schema", e);
             throw databaseError("Could not initialize database schema", e);
         }
     }
