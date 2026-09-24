@@ -22,15 +22,16 @@ public class AccountDAOImpl implements AccountDAO {
     private static final String UPDATE_PIN_SQL = "UPDATE accounts SET pin = ? WHERE id = ?";
     private static final String UPDATE_BALANCE_SQL = "UPDATE accounts SET balance = ? WHERE id = ?";
     private static final String DELETE_SQL = "DELETE FROM accounts WHERE id = ?";
+    private final Connection conn;
 
-    public AccountDAOImpl() {
+    public AccountDAOImpl(Connection conn) {
+        this.conn = conn;
         initializeSchema();
     }
 
     @Override
     public Account addAccount(Account account) {
-        try (Connection connection = ConnectionFactory.getConnectionFactory().getConnection();
-                PreparedStatement statement = connection.prepareStatement(INSERT_SQL)) {
+        try (PreparedStatement statement = conn.prepareStatement(INSERT_SQL)) {
             statement.setString(1, account.getPin());
             statement.setBigDecimal(2, account.getBalance());
 
@@ -46,8 +47,7 @@ public class AccountDAOImpl implements AccountDAO {
 
     @Override
     public Account getAccountById(long id) {
-        try (Connection connection = ConnectionFactory.getConnectionFactory().getConnection();
-                PreparedStatement statement = connection.prepareStatement(FIND_BY_ID_SQL)) {
+        try (PreparedStatement statement = conn.prepareStatement(FIND_BY_ID_SQL)) {
             statement.setLong(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -62,8 +62,7 @@ public class AccountDAOImpl implements AccountDAO {
 
     @Override
     public void updatePin(Account account) {
-        try (Connection connection = ConnectionFactory.getConnectionFactory().getConnection();
-                PreparedStatement statement = connection.prepareStatement(UPDATE_PIN_SQL)) {
+        try (PreparedStatement statement = conn.prepareStatement(UPDATE_PIN_SQL)) {
             statement.setString(1, account.getPin());
             statement.setLong(2, account.getId());
             statement.executeUpdate();
@@ -74,8 +73,7 @@ public class AccountDAOImpl implements AccountDAO {
 
     @Override
     public void updateBalance(Account account) {
-        try (Connection connection = ConnectionFactory.getConnectionFactory().getConnection();
-                PreparedStatement statement = connection.prepareStatement(UPDATE_BALANCE_SQL)) {
+        try (PreparedStatement statement = conn.prepareStatement(UPDATE_BALANCE_SQL)) {
             statement.setBigDecimal(1, account.getBalance());
             statement.setLong(2, account.getId());
             statement.executeUpdate();
@@ -86,8 +84,7 @@ public class AccountDAOImpl implements AccountDAO {
 
     @Override
     public void deleteAccount(long id) {
-        try (Connection connection = ConnectionFactory.getConnectionFactory().getConnection();
-                PreparedStatement statement = connection.prepareStatement(DELETE_SQL)) {
+        try (PreparedStatement statement = conn.prepareStatement(DELETE_SQL)) {
             statement.setLong(1, id);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -96,8 +93,7 @@ public class AccountDAOImpl implements AccountDAO {
     }
 
     private void initializeSchema() {
-        try (Connection connection = ConnectionFactory.getConnectionFactory().getConnection();
-                PreparedStatement statement = connection.prepareStatement(CREATE_TABLE_SQL)) {
+        try (PreparedStatement statement = conn.prepareStatement(CREATE_TABLE_SQL)) {
             statement.executeUpdate();
         } catch (SQLException e) {
             throw databaseError("Could not initialize database schema", e);

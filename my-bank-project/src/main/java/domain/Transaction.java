@@ -5,16 +5,16 @@ import java.math.BigDecimal;
 
 public class Transaction {
 	
-	private int id;
+	private Long id;
 	private TransactionType type;
 	private BigDecimal amount;
 	private LocalDateTime timeStamp;
-	private int sourceId;
-	private int destinationId;
+	private Long sourceId;
+	private Long destinationId;
 	private String description;
 	
-	public Transaction(int id, TransactionType type, BigDecimal amount, LocalDateTime timeStamp,
-			int sourceId, int destinationID, String description) {
+	public Transaction(Long id, TransactionType type, BigDecimal amount, LocalDateTime timeStamp,
+			Long sourceId, Long destinationID, String description) {
 		this.id = id;
 		this.type = type;
 		this.amount = amount;
@@ -24,7 +24,7 @@ public class Transaction {
 		this.description = description;
 	}
 	
-	public int getId() {
+	public Long getId() {
 		return id;
 	}
 	
@@ -40,11 +40,11 @@ public class Transaction {
 		return timeStamp;
 	}
 	
-	public int getSourceId() {
+	public Long getSourceId() {
 		return sourceId;
 	}
 	
-	public int getDestinationID() {
+	public Long getDestinationId() {
 		return destinationId;
 	}
 	

@@ -22,7 +22,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public Account findAccount(int id) {
+	public Account findAccount(long id) {
 		return accountDAO.getAccountById(id);
 	}
 
@@ -36,21 +36,15 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public void updateAccount(Account account) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deleteAccount(int id) {
-		if(accountDAO.getAccountById(id) == null) {
-			throw new IllegalArgumentException("Account not found");
-		}
-		else if(accountDAO.getAccountById(id).getBalance().compareTo(BigDecimal.ZERO) > 0) {
-			System.out.println("Account balance must be zero.");
-		}else {
-			accountDAO.deleteAccount(id);
-		}
+	public void deleteAccount(long id) {
+	    Account account = accountDAO.getAccountById(id);
+	    if (account == null) {
+	        throw new IllegalArgumentException("Account not found");
+	    }
+	    if (account.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+	        throw new IllegalArgumentException("Account balance must be zero before deletion");
+	    }
+	    accountDAO.deleteAccount(id);
 	}
 
 	

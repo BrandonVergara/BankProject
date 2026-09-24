@@ -6,12 +6,10 @@ public interface AccountService {
 	
 	Account register (String pin);
 	
-	Account findAccount(int id);
+	Account findAccount(long id);
 	
 	Account login (long id, String pin);
 	
-	void updateAccount(Account account);
-	
-	void deleteAccount(int id);
+	void deleteAccount(long id);
 	
 }
