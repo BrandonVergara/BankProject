@@ -31,6 +31,7 @@ Once logged in:
 1. **API Layer (Interface):** This is what the user sees. It handles all inputs, navigation, and printing messages. This layer *only* talks to the Service Layer.
 2. **Domain Layer (Blueprint)** This layer is accessed by all the other layers, it acts as a blue print for transactions and accounts.
 
-![BankCLI ERD](BankERD.png)
+    ![BankCLI ERD](BankERD.png)
+
 3. **Business Layer (Service)** This layer is where the bank rules live. It makes sure that transactions are able to be made. This layer is called by the api layer and calls the Repository Layer.
 4. **Repository Layer (DAO)** This layer is the design pattern that abstracts the database, the one that communicates with it. It is *only* called by the Business Layer.
