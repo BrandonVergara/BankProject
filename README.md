@@ -2,7 +2,7 @@
 Core Ledger bank application.
 
 ## Description
-A bank system that connects to a Postgres database. It allows users to create or log in to an account. Users can make transactions and the system is built to make sure that these transactions are possible, if not it won't execute them. 
+A terminal-based banking application backed by a PostgreSQL database. Users can register or log in to an account and perform deposits, withdrawals, and transfers. The system validates every transaction before executing it — insufficient funds, invalid input, or a missing account will stop the operation before any changes are made.
 
 ## Features
 Inside the application, users will be able to:
@@ -20,7 +20,7 @@ Once logged in:
 * **Log out:** User can log out of their account.
 * **Exit:** Exit the application.
 
-### The Stack
+## The Stack
 *   **Language:** Java
 *   **Build Tool:** Maven
 *   **Database:** Postgres
@@ -29,9 +29,19 @@ Once logged in:
 
 ## Architecture
 1. **API Layer (Interface):** This is what the user sees. It handles all inputs, navigation, and printing messages. This layer *only* talks to the Service Layer.
-2. **Domain Layer (Blueprint)** This layer is accessed by all the other layers, it acts as a blue print for transactions and accounts.
+2. **Domain Layer (Blueprint):** This layer is accessed by all the other layers. It acts as the blueprint for accounts and transactions.
 
     ![BankCLI ERD](BankERD.png)
 
-3. **Business Layer (Service)** This layer is where the bank rules live. It makes sure that transactions are able to be made. This layer is called by the api layer and calls the Repository Layer.
-4. **Repository Layer (DAO)** This layer is the design pattern that abstracts the database, the one that communicates with it. It is *only* called by the Business Layer.
+3. **Business Layer (Service):** This layer is where the bank's rules live. It validates that a transaction is allowed before it happens, and it's the only layer permitted to call the Repository Layer. It is called by the API Layer.
+4. **Repository Layer (DAO):** This layer abstracts the database — it's the only layer that communicates with PostgreSQL directly. It is *only* called by the Business Layer.
+
+## Testing
+* **Positive Test:** Verifies that a user logging in with correct account credentials is authenticated and can proceed into the application.
+* **Negative Test:** Verifies that a withdrawal exceeding the account's balance is rejected, and that the failure is handled gracefully rather than crashing or corrupting data.
+
+## Logging
+* Log files live in a separate folder called `logs/`. A new file is created for each day.
+* The log file tracks all activity, using:
+    * `INFO`: Records successful actions (e.g., "Account id# logged in successfully").
+    * `ERROR`: Records failed actions or security risks (e.g., "Withdraw failed, insufficient funds").
